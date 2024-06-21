@@ -1,0 +1,40 @@
+services:
+  web:
+    build: .
+    volumes:
+      - .:/data-provider-service
+    ports:
+      - 8081:8081
+    command: ./runserver.sh
+    environment:
+      - DJANGO_SETTINGS_MODULE=core.settings.local
+      - DB_HOST=postgres
+      - DB_NAME=data_provider
+      - DB_USER=data_provider
+      - DB_PASSWORD=password
+      - DB_PORT=5432
+    links:
+      - postgres:postgres
+    depends_on:
+      - postgres
+    networks:
+      - rpg-net
+
+  postgres:
+    image: postgres
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    restart: always
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_DB=data_provider
+      - POSTGRES_USER=data_provider
+      - POSTGRES_PASSWORD=password
+    networks:
+      - rpg-net
+
+networks:
+  rpg-net:
+    name: rpg-net
+    driver: bridge
+
